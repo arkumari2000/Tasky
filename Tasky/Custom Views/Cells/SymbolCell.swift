@@ -36,8 +36,8 @@ class SymbolCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             symbolImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             symbolImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            symbolImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            symbolImageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.8)
+            symbolImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
+            symbolImageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5)
         ])
     }
     
