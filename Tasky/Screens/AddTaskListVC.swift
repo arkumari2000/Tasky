@@ -50,15 +50,14 @@ class AddTaskListVC: UIViewController {
         symbolCollectionView.register(SymbolCell.self, forCellWithReuseIdentifier: SymbolCell.reuseId)
         
         symbolCollectionView.layer.cornerRadius = 2
-        symbolCollectionView.backgroundColor = .systemGray
         
         view.addSubview(symbolCollectionView)
         symbolCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             symbolCollectionView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 50),
-            symbolCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
-            symbolCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sidePadding),
+            symbolCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            symbolCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
             symbolCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 30)
         ])
     }
