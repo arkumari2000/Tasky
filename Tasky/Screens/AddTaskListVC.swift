@@ -48,7 +48,7 @@ class AddTaskListVC: UIViewController {
         symbolCollectionView.delegate = self
         symbolCollectionView.dataSource = self
         symbolCollectionView.register(SymbolCell.self, forCellWithReuseIdentifier: SymbolCell.reuseId)
-        
+        symbolCollectionView.register(HeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCell.reuseId)
         symbolCollectionView.layer.cornerRadius = 2
         
         view.addSubview(symbolCollectionView)
@@ -67,6 +67,12 @@ extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return symbolsList.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCell.reuseId, for: indexPath)  as! HeaderCell
+            cell.configureCell(textAlignment: .left, text: "Choose Symbol")
+            return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

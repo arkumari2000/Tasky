@@ -22,6 +22,7 @@ struct UIHelper {
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth)
         flowLayout.estimatedItemSize = .zero
         flowLayout.minimumInteritemSpacing = minimumInteritemSpacing
+        flowLayout.headerReferenceSize = CGSize(width: view.frame.size.width, height: 40)
         
         return flowLayout
     }
