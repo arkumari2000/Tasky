@@ -11,7 +11,7 @@ class HeaderCell: UICollectionViewCell {
     
     static let reuseId = "HeaderCell"
     
-    let titleLabel = UILabel(frame: .zero)
+    let titleLabel = TaskyTitleLabel(textAlignment: .left, fontSize: 16)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,13 +28,6 @@ class HeaderCell: UICollectionViewCell {
     }
     
     func configureLabel() {
-        titleLabel.textColor = .label
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        titleLabel.numberOfLines = 2
-        titleLabel.adjustsFontSizeToFitWidth = true
-        titleLabel.minimumScaleFactor = 0.5
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
         contentView.addSubview(titleLabel)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5),
