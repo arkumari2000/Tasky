@@ -15,6 +15,9 @@ class SymbolCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .lightGray
+        imageView.layer.masksToBounds = false
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -28,7 +31,11 @@ class SymbolCell: UICollectionViewCell {
     }
     
     func setSymbol(image: UIImage) {
-        symbolImageView.image = image
+        let paddedImage = image.withPadding(10)
+        symbolImageView.image = paddedImage
+        DispatchQueue.main.async {
+            self.symbolImageView.layer.cornerRadius = self.symbolImageView.frame.height/2
+        }
     }
     
     func configureCell() {
@@ -36,8 +43,8 @@ class SymbolCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             symbolImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             symbolImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            symbolImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            symbolImageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5)
+            symbolImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.9),
+            symbolImageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.9)
         ])
     }
     

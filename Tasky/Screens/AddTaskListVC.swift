@@ -49,7 +49,6 @@ class AddTaskListVC: UIViewController {
         symbolCollectionView.dataSource = self
         symbolCollectionView.register(SymbolCell.self, forCellWithReuseIdentifier: SymbolCell.reuseId)
         symbolCollectionView.register(HeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCell.reuseId)
-        symbolCollectionView.layer.cornerRadius = 2
         
         view.addSubview(symbolCollectionView)
         symbolCollectionView.translatesAutoresizingMaskIntoConstraints = false
