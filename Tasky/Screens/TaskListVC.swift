@@ -48,7 +48,8 @@ class TaskListVC: UIViewController {
     }
     
     func configureCollectionView() {
-        let flowLayout = UIHelper.createColumnFlowlayour(withColumns: 2, in: view, padding: 10, spacing: 12)
+        let maxSize = UIHelper.calculateMaxCellSize(for: taskListData, fixedWidth: 200)
+        let flowLayout = UIHelper.createColumnFlowlayour(withColumns: 2, in: view, padding: 10, spacing: 12, maxSize: maxSize)
         taggedCollectionView = UICollectionView(frame: view.frame, collectionViewLayout: flowLayout)
         taggedCollectionView.dataSource = self
         taggedCollectionView.register(TaggedTaskListCell.self, forCellWithReuseIdentifier: TaggedTaskListCell.reuseId)

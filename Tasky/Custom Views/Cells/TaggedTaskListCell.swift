@@ -60,7 +60,7 @@ class TaggedTaskListCell: UICollectionViewCell {
     
     func configureData(with data: TaggedTaskListData) {
         if let symbolImage = data.symbolImage {
-            let tintedImage = symbolImage.withTintColor(.black, renderingMode: .alwaysOriginal)
+            let tintedImage = symbolImage.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
             symbolImageView.image = tintedImage
         }
         
@@ -87,10 +87,10 @@ class TaggedTaskListCell: UICollectionViewCell {
         contentView.addSubview(vStackView)
         
         NSLayoutConstraint.activate([
-            vStackView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            vStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             vStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             vStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            vStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            vStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             symbolImageView.heightAnchor.constraint(equalToConstant: 50),
             symbolImageView.widthAnchor.constraint(equalToConstant: 50)
         ])

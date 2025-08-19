@@ -15,7 +15,7 @@ class SymbolCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .lightGray
+        imageView.backgroundColor = .systemGray6
         imageView.layer.masksToBounds = false
         imageView.clipsToBounds = true
         return imageView
