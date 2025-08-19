@@ -20,16 +20,18 @@ class TaggedTaskListCell: UICollectionViewCell {
     let vStackView : UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.distribution = .fill
-        stackView.spacing = 10
+        stackView.alignment = .fill
+        stackView.distribution = .fillProportionally
+        stackView.spacing = 2
         return stackView
     }()
 
     let hStackView : UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
+        stackView.alignment = .fill
         stackView.distribution = .fill
-        stackView.spacing = 10
+        stackView.spacing = 5
         return stackView
     }()
     
@@ -37,18 +39,18 @@ class TaggedTaskListCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .lightGray
         imageView.layer.masksToBounds = false
         imageView.clipsToBounds = true
         return imageView
     }()
     
-    let taskCount = TaskyTitleLabel(textAlignment: .right, fontSize: 20)
+    let taskCount = TaskyTitleLabel(textAlignment: .right, fontSize: 30)
     
-    let label = TaskyTitleLabel(textAlignment: .left, fontSize: 16)
+    let label = TaskyTitleLabel(textAlignment: .left, fontSize: 20, textColor: .gray)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configureView()
         configureStackViews()
     }
     
@@ -58,7 +60,8 @@ class TaggedTaskListCell: UICollectionViewCell {
     
     func configureData(with data: TaggedTaskListData) {
         if let symbolImage = data.symbolImage {
-            symbolImageView.image = symbolImage.withPadding(10)
+            let tintedImage = symbolImage.withTintColor(.black, renderingMode: .alwaysOriginal)
+            symbolImageView.image = tintedImage
         }
         
         if let labelText = data.label {
@@ -80,13 +83,16 @@ class TaggedTaskListCell: UICollectionViewCell {
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(label)
         
+        vStackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(vStackView)
         
         NSLayoutConstraint.activate([
             vStackView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             vStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             vStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            vStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
+            vStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            symbolImageView.heightAnchor.constraint(equalToConstant: 50),
+            symbolImageView.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
     
