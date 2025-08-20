@@ -11,15 +11,7 @@ class SymbolCell: UICollectionViewCell {
     
     static let reuseId = "SymbolCell"
     
-    let symbolImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .systemGray6
-        imageView.layer.masksToBounds = false
-        imageView.clipsToBounds = true
-        return imageView
-    }()
+    let symbolImageView = TaskySymbolImageView(with: nil, backgroundColor: .systemGray6)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

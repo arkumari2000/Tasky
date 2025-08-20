@@ -35,14 +35,7 @@ class TaggedTaskListCell: UICollectionViewCell {
         return stackView
     }()
     
-    let symbolImageView : UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.masksToBounds = false
-        imageView.clipsToBounds = true
-        return imageView
-    }()
+    let symbolImageView = TaskySymbolImageView(frame: .zero)
     
     let taskCount = TaskyTitleLabel(textAlignment: .right, fontSize: 30)
     
@@ -60,7 +53,7 @@ class TaggedTaskListCell: UICollectionViewCell {
     
     func configureData(with data: TaggedTaskListData) {
         if let symbolImage = data.symbolImage {
-            let tintedImage = symbolImage.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+            let tintedImage = symbolImage.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
             symbolImageView.image = tintedImage
         }
         
@@ -72,7 +65,7 @@ class TaggedTaskListCell: UICollectionViewCell {
     }
     
     func configureView() {
-        contentView.layer.cornerRadius = 5
+        contentView.layer.cornerRadius = 10
         contentView.backgroundColor = .systemGray6
     }
     
