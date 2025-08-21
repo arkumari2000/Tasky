@@ -46,20 +46,22 @@ class TaskListVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         // Update collection view height based on content size
-       taggedCollectionView.layoutIfNeeded()
-       let collectionHeight = taggedCollectionView.collectionViewLayout.collectionViewContentSize.height
-       collectionViewHeightConstraint.constant = collectionHeight
-       
-       // Update table view height based on content size
-       taskListTableView.layoutIfNeeded()
-       let tableHeight = taskListTableView.contentSize.height
-       tableViewHeightConstraint.constant = tableHeight
+        taggedCollectionView.layoutIfNeeded()
+        let collectionHeight = taggedCollectionView.collectionViewLayout.collectionViewContentSize.height
+        collectionViewHeightConstraint.constant = collectionHeight
+        
+        // Update table view height based on content size
+        taskListTableView.layoutIfNeeded()
+        let tableHeight = taskListTableView.contentSize.height
+        tableViewHeightConstraint.constant = tableHeight
     }
     
     @objc func pushAddTaskListVC() {
-        let addTaskListVC = AddTaskListVC()
-        addTaskListVC.navigationItem.title = "Add New List"
-        navigationController?.pushViewController(addTaskListVC, animated: true)
+        self.presentViewController(viewController: AddTaskListVC(), withTitle: "Add New List", withAnimation: true)
+    }
+    
+    func pushTaskVC(withTitle title: String?) {
+        self.presentViewController(viewController: TaskVC(), withTitle: title, withAnimation: true)
     }
     
     func configureRightButton() {
@@ -122,7 +124,7 @@ class TaskListVC: UIViewController {
         
         collectionViewHeightConstraint = taggedCollectionView.heightAnchor.constraint(equalToConstant: 100)
         tableViewHeightConstraint = taskListTableView.heightAnchor.constraint(equalToConstant: 100)
-
+        
         // Pin scrollView edges to safe area
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -172,6 +174,14 @@ extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
         cell.configureData(with: taskListData[indexPath.item])
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let title = taskListData[indexPath.item].label else {
+            return
+        }
+        let count = taskListData[indexPath.item].taskCount
+        pushTaskVC(withTitle: "\(title) (\(count))")
+    }
 }
 
 extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
@@ -185,5 +195,14 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
         }
         cell.setData(data: taskListData[indexPath.item])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let title = taskListData[indexPath.item].label else {
+            return
+        }
+        let count = taskListData[indexPath.item].taskCount
+        pushTaskVC(withTitle: "\(title) (\(count))")
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }

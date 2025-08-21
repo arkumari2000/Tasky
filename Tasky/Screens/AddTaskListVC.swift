@@ -7,19 +7,31 @@
 
 import UIKit
 
-class AddTaskListVC: UIViewController {
+class AddTaskListVC: ScrollViewController {
 
-    let textField = TaskTextField(placeholderText: "Enter List Name")
+    let symbolsList = SymbolList.allSymbols
+    
     let sidePadding: CGFloat = 20
     
+    var collectionViewHeightConstraint: NSLayoutConstraint!
+    
+    let textField = TaskTextField(placeholderText: "Enter List Name")
+    
     var symbolCollectionView: UICollectionView!
-    let symbolsList = SymbolList.allSymbols
+    
+    let submitButton = TaskyButton(backgroundColor: .systemOrange, title: "Add List")
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .systemBackground
         configureViews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let collectionViewHeight = symbolCollectionView.collectionViewLayout.collectionViewContentSize.height
+        collectionViewHeightConstraint.constant = collectionViewHeight
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -30,15 +42,16 @@ class AddTaskListVC: UIViewController {
     func configureViews() {
         configureTextField()
         configureCollectionView()
+        configureSubmitButton()
     }
 
     func configureTextField() {
-        view.addSubview(textField)
+        contentView.addSubview(textField)
         
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sidePadding),
+            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
+            textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: sidePadding),
+            textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -sidePadding),
             textField.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
@@ -50,14 +63,29 @@ class AddTaskListVC: UIViewController {
         symbolCollectionView.register(SymbolCell.self, forCellWithReuseIdentifier: SymbolCell.reuseId)
         symbolCollectionView.register(HeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCell.reuseId)
         
-        view.addSubview(symbolCollectionView)
+        contentView.addSubview(symbolCollectionView)
         symbolCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        collectionViewHeightConstraint = symbolCollectionView.heightAnchor.constraint(equalToConstant: 100)
         
         NSLayoutConstraint.activate([
             symbolCollectionView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 50),
-            symbolCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
-            symbolCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
-            symbolCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 30)
+            symbolCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
+            symbolCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
+            symbolCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            collectionViewHeightConstraint
+        ])
+    }
+    
+    func configureSubmitButton() {
+        view.addSubview(submitButton)
+        
+        NSLayoutConstraint.activate([
+            scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: 10),
+            submitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
+            submitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sidePadding),
+            submitButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            submitButton.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
 }

@@ -12,9 +12,9 @@ import SwiftData
 class TaskList {
     var title: String
     var icon: String
-    @Relationship(deleteRule: .cascade) var tasks: [Task]?
+    @Relationship(deleteRule: .cascade) var tasks: [TaskItem]?
     
-    init(title: String, icon: String, tasks: [Task]) {
+    init(title: String, icon: String, tasks: [TaskItem]) {
         self.title = title
         self.icon = icon
         self.tasks = tasks
