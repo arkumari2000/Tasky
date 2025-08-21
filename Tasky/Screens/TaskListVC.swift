@@ -176,11 +176,8 @@ extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let title = taskListData[indexPath.item].label else {
-            return
-        }
-        let count = taskListData[indexPath.item].taskCount
-        pushTaskVC(withTitle: "\(title) (\(count))")
+        let title = taskListData[indexPath.item].label
+        pushTaskVC(withTitle: title)
     }
 }
 
