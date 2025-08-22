@@ -17,7 +17,23 @@ class TaskVC: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+    
         configureTableView()
+        configureAddTaskButton()
+    }
+
+    func configureAddTaskButton() {
+        let customButton = UIButton(type: .system)
+        customButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+        customButton.setTitle("Add New Task", for: .normal)
+        customButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
+        
+        let customBarButton = UIBarButtonItem(customView: customButton)
+        
+        navigationItem.rightBarButtonItem = customBarButton
+    }
+    @objc func customButtonTapped() {
+        print("custom button tapped")
     }
     
     func configureTableView() {
