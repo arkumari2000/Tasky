@@ -10,15 +10,18 @@ import SwiftData
 
 @Model
 class TaskItem {
+    var id: UUID
     var title: String
     var isCompleted: Bool
     var dueDate: Date
     var priority: Int
     
     init(title: String, isCompleted: Bool, dueDate: Date, priority: Int) {
+        self.id = UUID()
         self.title = title
         self.isCompleted = isCompleted
         self.dueDate = dueDate
         self.priority = priority
     }
 }
+
