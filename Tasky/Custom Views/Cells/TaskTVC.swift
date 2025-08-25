@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol TaskTVCDelegate: AnyObject {
+    func didTapButton(in cell: TaskTVC)
+}
+
 class TaskTVC: UITableViewCell {
     
     static let reuseId = "TaskTVC"
+    
+    weak var delegate: TaskTVCDelegate?
     
     let cellSpacing: CGFloat = 5
     
