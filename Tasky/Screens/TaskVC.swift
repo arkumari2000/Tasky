@@ -12,7 +12,7 @@ class TaskVC: UIViewController {
     var tasks: [TaskItem] = DummyTasks.dummyDataArray
     
     let tasksTableView = UITableView()
-    
+    let addButton=TaskyAddButton()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,18 +23,20 @@ class TaskVC: UIViewController {
     }
 
     func configureAddTaskButton() {
-        let customButton = UIButton(type: .system)
-        customButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
-        customButton.setTitle("Add New Task", for: .normal)
-        customButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
-        
-        let customBarButton = UIBarButtonItem(customView: customButton)
+//        let customButton = UIButton(type: .system)
+//        customButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+//        customButton.setTitle("Add New Task", for: .normal)
+//        customButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
+        let addTaskButton=TaskyAddButton(title: "Add New Task")
+        addTaskButton.backgroundColor = .systemBackground
+        addTaskButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
+        let customBarButton = UIBarButtonItem(customView: addTaskButton)
         
         navigationItem.rightBarButtonItem = customBarButton
     }
 
     @objc func customButtonTapped() {
-        print("custom button tapped")
+        print("TaskyAdd button tapped")
     }
     
     func configureTableView() {
