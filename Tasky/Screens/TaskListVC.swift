@@ -65,14 +65,11 @@ class TaskListVC: UIViewController {
     }
     
     func configureRightButton() {
-        let customButton = UIButton(type: .system)
-        customButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
-        customButton.setTitle("Add List Item", for: .normal)
-        customButton.addTarget(self, action: #selector(pushAddTaskListVC), for: .touchUpInside)
-        
-        let customBarButtonItem = UIBarButtonItem(customView: customButton)
-        
-        navigationController?.navigationBar.topItem?.rightBarButtonItem = customBarButtonItem
+        let addTaskButton = TaskyAddButton(title: "Add List Item", image: UIImage(systemName: "plus.circle.fill"))
+        addTaskButton.addTarget(self, action: #selector(pushAddTaskListVC), for: .touchUpInside)
+        let customBarButton = UIBarButtonItem(customView: addTaskButton)
+
+        navigationItem.rightBarButtonItem = customBarButton
     }
     
     func configureVC() {

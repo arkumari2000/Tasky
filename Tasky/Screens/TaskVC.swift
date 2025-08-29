@@ -12,12 +12,26 @@ class TaskVC: UIViewController {
     var tasks: [TaskItem] = DummyTasks.dummyDataArray
     
     let tasksTableView = UITableView()
-    
+    let addButton=TaskyAddButton()
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+    
         configureTableView()
+        configureAddTaskButton()
+    }
+
+    func configureAddTaskButton() {
+        let addTaskButton = TaskyAddButton(title: "Add New Task", image: UIImage(systemName: "plus.circle.fill"))
+        addTaskButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
+        let customBarButton = UIBarButtonItem(customView: addTaskButton)
+
+        navigationItem.rightBarButtonItem = customBarButton
+    }
+
+    @objc func customButtonTapped() {
+        print("TaskyAdd button tapped")
     }
     
     func configureTableView() {
