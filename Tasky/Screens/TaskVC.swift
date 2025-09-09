@@ -14,6 +14,7 @@ class TaskVC: UIViewController {
     let tasksTableView = UITableView()
     let addButton = TaskyAddButton()
     let myBottomSheetView = BottomSheetUIView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,16 +33,13 @@ class TaskVC: UIViewController {
     }
     
     @objc func customButtonTapped() {
-        //for testing purpose:
-        print("TaskyAdd button tapped")
         
         let navVC=UINavigationController(rootViewController: myBottomSheetView)
         navVC.modalPresentationStyle = .pageSheet
         
         if let sheet = navVC.sheetPresentationController{
-            sheet.detents = [.custom(resolver: {context in
-                0.3*context.maximumDetentValue})]
-            sheet.preferredCornerRadius =  24
+            sheet.detents = [.custom(resolver: {context in 0.3*context.maximumDetentValue})]
+            sheet.preferredCornerRadius = 24
             sheet.prefersGrabberVisible = true
         }
         present(navVC, animated: true, completion: nil)

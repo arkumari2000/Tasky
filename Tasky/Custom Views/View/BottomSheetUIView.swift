@@ -7,10 +7,10 @@
 
 import UIKit
 
-class BottomSheetUIView:UIViewController {
-    let TaskField = TaskTextField(placeholderText: "Enter Task Name")
+class BottomSheetUIView: UIViewController {
+    let taskField = TaskTextField(placeholderText: "Enter Task Name")
     let cancelButton = TaskyButton(backgroundColor: .systemRed, title: "Cancel")
-    let AddButton = TaskyButton(backgroundColor: .systemOrange, title: "Add Task", titleColor: .white)
+    let addButton = TaskyButton(backgroundColor: .systemOrange, title: "Add Task", titleColor: .white)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,36 +21,37 @@ class BottomSheetUIView:UIViewController {
     }
     
     @objc func addButtonTapped(){
-        TaskField.text = ""
+        taskField.text = ""
         self.dismiss(animated: true, completion: nil)
     }
     
     @objc func cancelButtonTapped(){
-        TaskField.text = ""
+        taskField.text = ""
         self.dismiss(animated: true, completion: nil)
     }
     
     func configureTaskField(){
-        view.addSubview(TaskField)
+        view.addSubview(taskField)
+        let sidePadding:CGFloat = 20
         
         NSLayoutConstraint.activate([
-            TaskField.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            TaskField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            TaskField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            TaskField.heightAnchor.constraint(equalToConstant: 55)
+            taskField.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            taskField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
+            taskField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sidePadding),
+            taskField.heightAnchor.constraint(equalToConstant: 55)
         ])
     }
     
     func configureAddButton(){
-        view.addSubview(AddButton)
-        AddButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        view.addSubview(addButton)
+        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         
         
         NSLayoutConstraint.activate([
-            AddButton.topAnchor.constraint(equalTo: TaskField.bottomAnchor, constant: 15),
-            AddButton.trailingAnchor.constraint(equalTo: TaskField.trailingAnchor),
-            AddButton.widthAnchor.constraint(equalToConstant: 175),
-            AddButton.heightAnchor.constraint(equalToConstant: 55)
+            addButton.topAnchor.constraint(equalTo: taskField.bottomAnchor, constant: 15),
+            addButton.trailingAnchor.constraint(equalTo: taskField.trailingAnchor),
+            addButton.widthAnchor.constraint(equalToConstant: 175),
+            addButton.heightAnchor.constraint(equalToConstant: 55)
         ])
     }
     
@@ -59,8 +60,8 @@ class BottomSheetUIView:UIViewController {
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            cancelButton.topAnchor.constraint(equalTo: TaskField.bottomAnchor, constant: 15),
-            cancelButton.leadingAnchor.constraint(equalTo: TaskField.leadingAnchor),
+            cancelButton.topAnchor.constraint(equalTo: taskField.bottomAnchor, constant: 15),
+            cancelButton.leadingAnchor.constraint(equalTo: taskField.leadingAnchor),
             cancelButton.widthAnchor.constraint(equalToConstant: 175),
             cancelButton.heightAnchor.constraint(equalToConstant: 55)
         ])
