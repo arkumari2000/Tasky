@@ -8,30 +8,41 @@
 import UIKit
 
 class TaskVC: UIViewController {
-
+    
     var tasks: [TaskItem] = DummyTasks.dummyDataArray
     
     let tasksTableView = UITableView()
-    let addButton=TaskyAddButton()
+    let addButton = TaskyAddButton()
+    let myBottomSheetView = BottomSheetUIView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-    
+        
         configureTableView()
         configureAddTaskButton()
     }
-
+    
     func configureAddTaskButton() {
         let addTaskButton = TaskyAddButton(title: "Add New Task", image: UIImage(systemName: "plus.circle.fill"))
         addTaskButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
         let customBarButton = UIBarButtonItem(customView: addTaskButton)
-
+        
         navigationItem.rightBarButtonItem = customBarButton
     }
-
+    
     @objc func customButtonTapped() {
-        print("TaskyAdd button tapped")
+        
+        let navVC = UINavigationController(rootViewController: myBottomSheetView)
+        navVC.modalPresentationStyle = .pageSheet
+        
+        if let sheet = navVC.sheetPresentationController {
+            sheet.detents = [.custom ( resolver:  { context in 0.3*context.maximumDetentValue } ) ]
+            sheet.preferredCornerRadius = 24
+            sheet.prefersGrabberVisible = true
+        }
+        present(navVC, animated: true, completion: nil)
     }
     
     func configureTableView() {
