@@ -14,4 +14,8 @@ extension UIViewController {
         viewController.navigationItem.title = title
         navigationController?.pushViewController(viewController, animated: animated)
     }
+    
+    func popViewController(withAnimation animated: Bool ) {
+        navigationController?.popViewController(animated: animated)
+    }
 }

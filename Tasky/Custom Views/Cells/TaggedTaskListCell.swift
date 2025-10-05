@@ -7,12 +7,6 @@
 
 import UIKit
 
-struct TaggedTaskListData {
-    var symbolImage: UIImage?
-    var taskCount: Int = 0
-    var label: String?
-}
-
 class TaggedTaskListCell: UICollectionViewCell {
     
     static let reuseId = "TaggedTaskListCell"
@@ -51,17 +45,15 @@ class TaggedTaskListCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureData(with data: TaggedTaskListData) {
-        if let symbolImage = data.symbolImage {
+    func configureData(with data: TaskList) {
+        if let symbolImage = UIImage(systemName: data.icon) {
             let tintedImage = symbolImage.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
             symbolImageView.image = tintedImage
         }
         
-        if let labelText = data.label {
-            label.text = labelText
-        }
+        label.text = data.title
         
-        taskCount.text = String(data.taskCount)
+        taskCount.text = String(data.tasks.count)
     }
     
     func configureView() {

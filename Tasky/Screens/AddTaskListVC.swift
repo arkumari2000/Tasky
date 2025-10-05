@@ -15,11 +15,13 @@ class AddTaskListVC: ScrollViewController {
     
     var collectionViewHeightConstraint: NSLayoutConstraint!
     
+    // Views
     let textField = TaskTextField(placeholderText: "Enter List Name")
-    
     var symbolCollectionView: UICollectionView!
-    
     let submitButton = TaskyButton(backgroundColor: .systemOrange, title: "Add List")
+    
+    var taskName: String? { textField.text }
+    var selectedIcon: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +39,13 @@ class AddTaskListVC: ScrollViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
+    }
+    
+    @objc func addTaskList() {
+        guard let name = taskName, let icon = selectedIcon else { return }
+        let taskList = TaskList(title: name, icon: icon)
+        DataManager.shared.addTaskList(taskList)
+        self.popViewController(withAnimation: true)
     }
     
     func configureViews() {
@@ -80,6 +89,8 @@ class AddTaskListVC: ScrollViewController {
     func configureSubmitButton() {
         view.addSubview(submitButton)
         
+        submitButton.addTarget(self, action: #selector(addTaskList), for: .touchUpInside)
+        
         NSLayoutConstraint.activate([
             scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: 10),
             submitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
@@ -104,9 +115,16 @@ extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SymbolCell.reuseId, for: indexPath) as! SymbolCell
-        guard let symbol = symbolsList[indexPath.item] else { return UICollectionViewCell() }
+        guard let symbol = symbolsList[indexPath.item].image else { return UICollectionViewCell() }
         cell.setSymbol(image: symbol)
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        selectedIcon = symbolsList[safe: indexPath.item]?.systemName
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SymbolCell.reuseId, for: indexPath) as! SymbolCell
+        guard let symbol = symbolsList[indexPath.item].image else { return }
+        cell.setSymbol(image: symbol, withBackgorundColor: .systemCyan)
     }
     
 }

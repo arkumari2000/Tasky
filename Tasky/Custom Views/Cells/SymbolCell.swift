@@ -22,12 +22,13 @@ class SymbolCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setSymbol(image: UIImage) {
+    func setSymbol(image: UIImage, withBackgorundColor bgColor: UIColor? = .systemGray6) {
         let paddedImage = image.withPadding(10)
         symbolImageView.image = paddedImage
         DispatchQueue.main.async {
             self.symbolImageView.layer.cornerRadius = self.symbolImageView.frame.height/2
         }
+        symbolImageView.backgroundColor = bgColor
     }
     
     func configureCell() {

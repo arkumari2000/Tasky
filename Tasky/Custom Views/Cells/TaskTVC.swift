@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol TaskTVCDelegate: AnyObject {
+    func didTapButton(in cell: TaskTVC)
+}
+
 class TaskTVC: UITableViewCell {
     
     static let reuseId = "TaskTVC"
+    
+    weak var delegate: TaskTVCDelegate?
     
     let cellSpacing: CGFloat = 5
     
@@ -44,7 +50,7 @@ class TaskTVC: UITableViewCell {
                 string: tasktitle,
                 attributes: [
                     .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                    .foregroundColor: UIColor.label  // optional: text color
+                    .foregroundColor: UIColor.secondaryLabel
                 ]
             )
             taskTitleLabel.attributedText = attributedString
