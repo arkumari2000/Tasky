@@ -9,17 +9,14 @@ import UIKit
 
 class TaskListVC: UIViewController {
     
+    //Views
     let scrollView = UIScrollView()
-    
     let contentView = UIView()
-    
     var taggedCollectionView: UICollectionView!
-    
     let tableTitleView = TaskyTitleLabel(textAlignment: .left, fontSize: 28)
-    
     var taskListTableView = UITableView()
     
-    var taskListData: [TaggedTaskListData] = DummyTaskListData.dummyDataArray
+    var taskListData: [TaskList] = []
     
     let sidePadding : CGFloat = 10
     
@@ -29,6 +26,7 @@ class TaskListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //fetchTaskList()
         configureVC()
         configureRightButton()
         configureScrollViewAndContentView()
@@ -40,6 +38,8 @@ class TaskListVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = true
+        fetchTaskList()
+        taskListTableView.reloadData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -54,6 +54,10 @@ class TaskListVC: UIViewController {
         taskListTableView.layoutIfNeeded()
         let tableHeight = taskListTableView.contentSize.height
         tableViewHeightConstraint.constant = tableHeight
+    }
+    
+    func fetchTaskList() {
+        taskListData = try! DataManager.shared.fetchTaskLists()
     }
     
     @objc func pushAddTaskListVC() {
@@ -164,19 +168,19 @@ class TaskListVC: UIViewController {
 
 extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
+        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell, let data = taskListData[safe: indexPath.item] else {
             return UICollectionViewCell()
         }
-        cell.configureData(with: taskListData[indexPath.item])
+        cell.configureData(with: data)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let title = taskListData[indexPath.item].label
+        let title = taskListData[indexPath.item].title
         pushTaskVC(withTitle: title)
     }
 }
@@ -195,11 +199,8 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let title = taskListData[indexPath.item].label else {
-            return
-        }
-        let count = taskListData[indexPath.item].taskCount
-        pushTaskVC(withTitle: "\(title) (\(count))")
+        let count = taskListData[indexPath.item].tasks.count
+        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))")
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }

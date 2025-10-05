@@ -39,16 +39,14 @@ class TaskListTVC: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setData(data: TaggedTaskListData) {
-        if let symbolImage = data.symbolImage {
+    func setData(data: TaskList) {
+        if let symbolImage = UIImage(systemName: data.icon) {
             symbolImageView.image = symbolImage.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal)
         }
         
-        if let label = data.label {
-            taskListLabel.text = label
-        }
+        taskListLabel.text = data.title
         
-        taskCountLabel.text = String(data.taskCount)
+        taskCountLabel.text = String(data.tasks.count)
     }
     
     func setupViews() {

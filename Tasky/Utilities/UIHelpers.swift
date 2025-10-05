@@ -47,7 +47,7 @@ struct UIHelper {
     
     /// There is an issue with this method, it is not working properly.
     /// Will visit this method soon
-    static func calculateMaxCellSize(for dataList: [TaggedTaskListData], fixedWidth: CGFloat) -> CGSize {
+    static func calculateMaxCellSize(for dataList: [TaskList], fixedWidth: CGFloat) -> CGSize {
         var maxSize = CGSize(width: 0, height: 0)
 
         for data in dataList {

@@ -41,20 +41,22 @@ class TaskyRadioButton: UIControl {
         outerCircle.layer.borderWidth = 2
         outerCircle.layer.borderColor = outerCircleColor.cgColor
         outerCircle.backgroundColor = .clear
+        outerCircle.isUserInteractionEnabled = false
         addSubview(outerCircle)
 
         // Inner circle styling
         innerCircle.translatesAutoresizingMaskIntoConstraints = false
         innerCircle.backgroundColor = innerCircleColor
         innerCircle.isHidden = true
+        innerCircle.isUserInteractionEnabled = false
         addSubview(innerCircle)
 
         // Layout constraints
         NSLayoutConstraint.activate([
             outerCircle.widthAnchor.constraint(equalToConstant: 28),
             outerCircle.heightAnchor.constraint(equalTo: outerCircle.widthAnchor),
-            outerCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            outerCircle.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            outerCircle.centerXAnchor.constraint(equalTo: centerXAnchor),
+            outerCircle.centerYAnchor.constraint(equalTo: centerYAnchor),
 
             innerCircle.centerXAnchor.constraint(equalTo: outerCircle.centerXAnchor),
             innerCircle.centerYAnchor.constraint(equalTo: outerCircle.centerYAnchor),

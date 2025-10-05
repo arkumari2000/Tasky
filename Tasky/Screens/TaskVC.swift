@@ -47,8 +47,11 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         cell.setData(with: task.title, isCompleted: task.isCompleted)
+        cell.selectionStyle = .none
         return cell
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //didTapButton(in: cell)
+    }
 }

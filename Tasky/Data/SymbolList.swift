@@ -8,31 +8,23 @@
 import Foundation
 import UIKit
 
+struct SystemImage {
+    let image: UIImage?
+    let systemName: String
+}
+
 struct SymbolList {
     static let allSymbols = [
-        UIImage(systemName: "figure.walk"),
-        UIImage(systemName: "pencil"),
-        UIImage(systemName: "book"),
-        UIImage(systemName: "dumbbell"),
-        UIImage(systemName: "exclamationmark.2"),
-        UIImage(systemName: "exclamationmark.3"),
-        UIImage(systemName: "exclamationmark.triangle"),
-        UIImage(systemName: "bell"),
-        UIImage(systemName: "paintbrush.pointed"),
-        UIImage(systemName: "bed.double"),
-        UIImage(systemName: "wifi"),
-        UIImage(systemName: "house"),
-        UIImage(systemName: "lightbulb"),
-        UIImage(systemName: "toilet"),
-        UIImage(systemName: "sun.min"),
-        UIImage(systemName: "cloud.rain"),
-        UIImage(systemName: "signature"),
-        UIImage(systemName: "textformat"),
-        UIImage(systemName: "play"),
-        UIImage(systemName: "infinity"),
-        UIImage(systemName: "hourglass"),
-        UIImage(systemName: "cross.case"),
-        UIImage(systemName: "brain.head.profile"),
-        UIImage(systemName: "moon.haze")
+        SystemImage(image: UIImage(systemName: "figure.walk"), systemName: "figure.walk"),
+        SystemImage(image: UIImage(systemName: "pencil"), systemName: "pencil"),
+        SystemImage(image: UIImage(systemName: "book"), systemName: "book"),
+        SystemImage(image: UIImage(systemName: "dumbbell"), systemName: "dumbbell"),
+        SystemImage(image: UIImage(systemName: "bell"), systemName: "bell"),
+        SystemImage(image: UIImage(systemName: "sun.min"), systemName: "sun.min"),
+        SystemImage(image: UIImage(systemName: "toilet"), systemName: "toilet"),
+        SystemImage(image: UIImage(systemName: "cloud.rain"), systemName: "cloud.rain"),
+        SystemImage(image: UIImage(systemName: "signature"), systemName: "signature"),
+        SystemImage(image: UIImage(systemName: "textformat"), systemName: "textformat"),
+        SystemImage(image: UIImage(systemName: "infinity"), systemName: "infinity")
     ]
 }

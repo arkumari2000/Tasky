@@ -50,7 +50,7 @@ class TaskTVC: UITableViewCell {
                 string: tasktitle,
                 attributes: [
                     .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                    .foregroundColor: UIColor.label  // optional: text color
+                    .foregroundColor: UIColor.secondaryLabel
                 ]
             )
             taskTitleLabel.attributedText = attributedString
