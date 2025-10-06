@@ -89,6 +89,25 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //didTapButton(in: cell)
     }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self, let taskListData = taskListData,  let task = taskListData.tasks[safe: indexPath.item] else { return }
+            
+            try! DataManager.shared.deleteTask(task, from: taskListData)
+            
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            self.reloadTitle()
+            
+            completionHandler(true)
+        }
+        
+        deleteAction.backgroundColor = .red
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        configuration.performsFirstActionWithFullSwipe = true
+        return configuration
+    }
 }
 
 extension TaskVC: BottomSheetUIViewDelegate {
