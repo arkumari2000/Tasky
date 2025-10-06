@@ -7,10 +7,16 @@
 
 import UIKit
 
+protocol BottomSheetUIViewDelegate: AnyObject {
+    func addButtonTapped(withText text: String?)
+}
+
 class BottomSheetUIView: UIViewController {
     let taskField = TaskTextField(placeholderText: "Enter Task Name")
     let cancelButton = TaskyButton(backgroundColor: .systemRed, title: "Cancel")
     let addButton = TaskyButton(backgroundColor: .systemOrange, title: "Add Task", titleColor: .white)
+    
+    var delegate: BottomSheetUIViewDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +27,7 @@ class BottomSheetUIView: UIViewController {
     }
     
     @objc func addButtonTapped(){
+        delegate?.addButtonTapped(withText: taskField.text)
         taskField.text = ""
         self.dismiss(animated: true, completion: nil)
     }

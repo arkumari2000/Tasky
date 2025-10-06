@@ -9,32 +9,38 @@ import UIKit
 
 class TaskVC: UIViewController {
     
-    var tasks: [TaskItem] = DummyTasks.dummyDataArray
+    var taskListData: TaskList?
     
     let tasksTableView = UITableView()
     let addButton = TaskyAddButton()
-    let myBottomSheetView = BottomSheetUIView()
+    let addTaskBottomSheet = BottomSheetUIView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
         
+        configureBottomSheet()
         configureTableView()
         configureAddTaskButton()
     }
     
+    func reloadTitle() {
+        guard let taskList = taskListData else { return }
+        let title = "\(taskList.title) (\(taskList.tasks.count))"
+        self.navigationItem.title = title
+    }
+    
     func configureAddTaskButton() {
         let addTaskButton = TaskyAddButton(title: "Add New Task", image: UIImage(systemName: "plus.circle.fill"))
-        addTaskButton.addTarget(self, action: #selector(customButtonTapped), for: .touchUpInside)
+        addTaskButton.addTarget(self, action: #selector(addTaskButtonTapped), for: .touchUpInside)
         let customBarButton = UIBarButtonItem(customView: addTaskButton)
         
         navigationItem.rightBarButtonItem = customBarButton
     }
     
-    @objc func customButtonTapped() {
-        
-        let navVC = UINavigationController(rootViewController: myBottomSheetView)
+    @objc func addTaskButtonTapped() {
+        let navVC = UINavigationController(rootViewController: addTaskBottomSheet)
         navVC.modalPresentationStyle = .pageSheet
         
         if let sheet = navVC.sheetPresentationController {
@@ -43,6 +49,10 @@ class TaskVC: UIViewController {
             sheet.prefersGrabberVisible = true
         }
         present(navVC, animated: true, completion: nil)
+    }
+    
+    func configureBottomSheet() {
+        addTaskBottomSheet.delegate = self
     }
     
     func configureTableView() {
@@ -64,11 +74,11 @@ class TaskVC: UIViewController {
 
 extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
+        return taskListData?.tasks.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = tasks[safe: indexPath.item] else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = taskListData?.tasks[safe: indexPath.item] else {
             return UITableViewCell()
         }
         cell.setData(with: task.title, isCompleted: task.isCompleted)
@@ -78,5 +88,16 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //didTapButton(in: cell)
+    }
+}
+
+extension TaskVC: BottomSheetUIViewDelegate {
+
+    func addButtonTapped(withText text: String?) {
+        guard let taskList = taskListData, let title = text else { return }
+        let taskItem = TaskItem(title: title)
+        try! DataManager.shared.addTaskToList(taskItem, taskList: taskList)
+        tasksTableView.reloadData()
+        reloadTitle()
     }
 }

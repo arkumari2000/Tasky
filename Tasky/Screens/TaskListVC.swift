@@ -64,8 +64,10 @@ class TaskListVC: UIViewController {
         self.presentViewController(viewController: AddTaskListVC(), withTitle: "Add New List", withAnimation: true)
     }
     
-    func pushTaskVC(withTitle title: String?) {
-        self.presentViewController(viewController: TaskVC(), withTitle: title, withAnimation: true)
+    func pushTaskVC(withTitle title: String?, tasksList: TaskList) {
+        let taskVC = TaskVC()
+        taskVC.taskListData = tasksList
+        self.presentViewController(viewController: taskVC, withTitle: title, withAnimation: true)
     }
     
     func configureRightButton() {
@@ -177,8 +179,9 @@ extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let title = taskListData[indexPath.item].title
-        pushTaskVC(withTitle: title)
+        let tasksList = taskListData[indexPath.item]
+        let count = tasksList.tasks.count
+        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))", tasksList: tasksList)
     }
 }
 
@@ -196,8 +199,9 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let count = taskListData[indexPath.item].tasks.count
-        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))")
+        let tasksList = taskListData[indexPath.item]
+        let count = tasksList.tasks.count
+        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))", tasksList: tasksList)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
