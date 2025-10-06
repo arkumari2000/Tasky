@@ -204,4 +204,23 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
         pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))", tasksList: tasksList)
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            
+            try! DataManager.shared.deleteTaskList(self.taskListData[indexPath.item])
+            fetchTaskList()
+
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            
+            completionHandler(true)
+        }
+        
+        deleteAction.backgroundColor = .red
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        configuration.performsFirstActionWithFullSwipe = true
+        return configuration
+    }
 }
