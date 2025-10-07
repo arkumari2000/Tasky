@@ -29,14 +29,18 @@ class DataManager {
         let descriptor = FetchDescriptor<TaskList>()
         return try context.fetch(descriptor)
     }
-
-    func updateTaskList(_ taskList: TaskList) throws {
-        // Check if tasks array is nil or empty; if so, delete the taskList
-        if taskList.tasks.isEmpty {
-            try deleteTaskList(taskList)
-        } else {
-            try context.save()
+    
+    func fetchFlaggedTaskLists() throws -> [TaskList] {
+        let predicate = #Predicate<TaskList> { tasklist in
+            tasklist.flagged == true
         }
+        let descriptor = FetchDescriptor<TaskList>(predicate: predicate)
+        return try context.fetch(descriptor)
+    }
+
+    func updateTaskList(_ taskList: TaskList, flagged: Bool) throws {
+        taskList.flagged = flagged
+        try context.save()
     }
 
     func deleteTaskList(_ taskList: TaskList) throws {

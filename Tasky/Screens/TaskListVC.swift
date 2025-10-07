@@ -17,6 +17,7 @@ class TaskListVC: UIViewController {
     var taskListTableView = UITableView()
     
     var taskListData: [TaskList] = []
+    var flaggedListData: [TaskList] = []
     
     let sidePadding : CGFloat = 10
     
@@ -26,7 +27,6 @@ class TaskListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //fetchTaskList()
         configureVC()
         configureRightButton()
         configureScrollViewAndContentView()
@@ -37,27 +37,26 @@ class TaskListVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.prefersLargeTitles = false
         fetchTaskList()
+        fetchFlaggedTaskList()
         taskListTableView.reloadData()
+        updateTableviewheightConstraint()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        // Update collection view height based on content size
-        taggedCollectionView.layoutIfNeeded()
-        let collectionHeight = taggedCollectionView.collectionViewLayout.collectionViewContentSize.height
-        collectionViewHeightConstraint.constant = collectionHeight
-        
-        // Update table view height based on content size
-        taskListTableView.layoutIfNeeded()
-        let tableHeight = taskListTableView.contentSize.height
-        tableViewHeightConstraint.constant = tableHeight
+        updateCollectionViewHeightConstraint()
+        updateTableviewheightConstraint()
     }
     
     func fetchTaskList() {
         taskListData = try! DataManager.shared.fetchTaskLists()
+    }
+    
+    func fetchFlaggedTaskList() {
+        flaggedListData = try! DataManager.shared.fetchFlaggedTaskLists()
     }
     
     @objc func pushAddTaskListVC() {
@@ -70,11 +69,24 @@ class TaskListVC: UIViewController {
         self.presentViewController(viewController: taskVC, withTitle: title, withAnimation: true)
     }
     
+    func updateCollectionViewHeightConstraint() {
+        // Update collection view height based on content size
+        taggedCollectionView.layoutIfNeeded()
+        let collectionHeight = taggedCollectionView.collectionViewLayout.collectionViewContentSize.height
+        collectionViewHeightConstraint.constant = collectionHeight
+    }
+    
+    func updateTableviewheightConstraint() {
+        taskListTableView.layoutIfNeeded()
+        let tableHeight = taskListTableView.contentSize.height
+        tableViewHeightConstraint.constant = tableHeight
+    }
+    
     func configureRightButton() {
         let addTaskButton = TaskyAddButton(title: "Add List Item", image: UIImage(systemName: "plus.circle.fill"))
         addTaskButton.addTarget(self, action: #selector(pushAddTaskListVC), for: .touchUpInside)
         let customBarButton = UIBarButtonItem(customView: addTaskButton)
-
+        
         navigationItem.rightBarButtonItem = customBarButton
     }
     
@@ -167,11 +179,11 @@ class TaskListVC: UIViewController {
 
 extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 0
+        return flaggedListData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell, let data = taskListData[safe: indexPath.item] else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell, let data = flaggedListData[safe: indexPath.item] else {
             return UICollectionViewCell()
         }
         cell.configureData(with: data)
@@ -179,9 +191,9 @@ extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let tasksList = taskListData[indexPath.item]
+        let tasksList = flaggedListData[indexPath.item]
         let count = tasksList.tasks.count
-        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))", tasksList: tasksList)
+        pushTaskVC(withTitle: "\(tasksList.title) (\(count))", tasksList: tasksList)
     }
 }
 
@@ -206,21 +218,52 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
-            guard let self = self else { return }
-            
-            try! DataManager.shared.deleteTaskList(self.taskListData[indexPath.item])
-            fetchTaskList()
-
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            
-            completionHandler(true)
-        }
+        let taskList = taskListData[indexPath.item]
         
-        deleteAction.backgroundColor = .red
+        let deleteAction = makeDeleteAction(for: taskList, at: indexPath, tableView: tableView)
+        let flagAction = makeFlagAction(for: taskList)
         
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, flagAction])
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
+    }
+}
+
+private extension TaskListVC {
+
+    func makeDeleteAction(for taskList: TaskList, at indexPath: IndexPath, tableView: UITableView) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            try? DataManager.shared.deleteTaskList(taskList)
+            self.refreshTaskListsUI {
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            completionHandler(true)
+        }
+        action.backgroundColor = .red
+        return action
+    }
+    
+    func makeFlagAction(for taskList: TaskList) -> UIContextualAction {
+        let isFlagged = taskList.flagged ?? false
+        let actionTitle = isFlagged ? "Unflag" : "Flag"
+        let action = UIContextualAction(style: .normal, title: actionTitle) { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            try? DataManager.shared.updateTaskList(taskList, flagged: !isFlagged)
+            self.refreshTaskListsUI()
+            completionHandler(true)
+        }
+        action.backgroundColor = .systemOrange
+        return action
+    }
+    
+    func refreshTaskListsUI(completion: (() -> Void)? = nil) {
+        fetchTaskList()
+        fetchFlaggedTaskList()
+        UIView.animate(withDuration: 0.2) {
+            self.taggedCollectionView.reloadData()
+            self.updateCollectionViewHeightConstraint()
+            completion?()
+        }
     }
 }
