@@ -25,6 +25,11 @@ class TaskVC: UIViewController {
         configureAddTaskButton()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
     func reloadTitle() {
         guard let taskList = taskListData else { return }
         let title = "\(taskList.title) (\(taskList.tasks.count))"
