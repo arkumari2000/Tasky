@@ -27,7 +27,6 @@ class TaskListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //fetchTaskList()
         configureVC()
         configureRightButton()
         configureScrollViewAndContentView()
@@ -42,17 +41,14 @@ class TaskListVC: UIViewController {
         fetchTaskList()
         fetchFlaggedTaskList()
         taskListTableView.reloadData()
+        updateTableviewheightConstraint()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         updateCollectionViewHeightConstraint()
-        
-        // Update table view height based on content size
-        taskListTableView.layoutIfNeeded()
-        let tableHeight = taskListTableView.contentSize.height
-        tableViewHeightConstraint.constant = tableHeight
+        updateTableviewheightConstraint()
     }
     
     func fetchTaskList() {
@@ -80,11 +76,17 @@ class TaskListVC: UIViewController {
         collectionViewHeightConstraint.constant = collectionHeight
     }
     
+    func updateTableviewheightConstraint() {
+        taskListTableView.layoutIfNeeded()
+        let tableHeight = taskListTableView.contentSize.height
+        tableViewHeightConstraint.constant = tableHeight
+    }
+    
     func configureRightButton() {
         let addTaskButton = TaskyAddButton(title: "Add List Item", image: UIImage(systemName: "plus.circle.fill"))
         addTaskButton.addTarget(self, action: #selector(pushAddTaskListVC), for: .touchUpInside)
         let customBarButton = UIBarButtonItem(customView: addTaskButton)
-
+        
         navigationItem.rightBarButtonItem = customBarButton
     }
     
@@ -216,42 +218,52 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
         let taskList = taskListData[indexPath.item]
         
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
-            guard let self = self else { return }
-            
-            try! DataManager.shared.deleteTaskList(taskList)
-            fetchTaskList()
-
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            
-            completionHandler(true)
-        }
-        
-        deleteAction.backgroundColor = .red
-        
-        let title = !(taskList.flagged ?? false) ? "Flag" : "Unflag"
-        let flagAction = UIContextualAction(style: .normal, title: title) { [weak self] (_, _, completionHandler) in
-            guard let self = self else { return }
-            
-            try! DataManager.shared.updateTaskList(taskList, flagged: !(taskList.flagged ?? false))
-            fetchTaskList()
-            fetchFlaggedTaskList()
-            
-            UIView.animate(withDuration: 0.2) {
-                self.taggedCollectionView.reloadData()
-                self.updateCollectionViewHeightConstraint()
-            }
-
-            completionHandler(true)
-        }
-        
-        flagAction.backgroundColor = .systemOrange
+        let deleteAction = makeDeleteAction(for: taskList, at: indexPath, tableView: tableView)
+        let flagAction = makeFlagAction(for: taskList)
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction, flagAction])
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
+    }
+}
+
+private extension TaskListVC {
+
+    func makeDeleteAction(for taskList: TaskList, at indexPath: IndexPath, tableView: UITableView) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            try? DataManager.shared.deleteTaskList(taskList)
+            self.refreshTaskListsUI {
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            completionHandler(true)
+        }
+        action.backgroundColor = .red
+        return action
+    }
+    
+    func makeFlagAction(for taskList: TaskList) -> UIContextualAction {
+        let isFlagged = taskList.flagged ?? false
+        let actionTitle = isFlagged ? "Unflag" : "Flag"
+        let action = UIContextualAction(style: .normal, title: actionTitle) { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            try? DataManager.shared.updateTaskList(taskList, flagged: !isFlagged)
+            self.refreshTaskListsUI()
+            completionHandler(true)
+        }
+        action.backgroundColor = .systemOrange
+        return action
+    }
+    
+    func refreshTaskListsUI(completion: (() -> Void)? = nil) {
+        fetchTaskList()
+        fetchFlaggedTaskList()
+        UIView.animate(withDuration: 0.2) {
+            self.taggedCollectionView.reloadData()
+            self.updateCollectionViewHeightConstraint()
+            completion?()
+        }
     }
 }
