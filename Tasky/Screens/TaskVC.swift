@@ -49,7 +49,7 @@ class TaskVC: UIViewController {
         navVC.modalPresentationStyle = .pageSheet
         
         if let sheet = navVC.sheetPresentationController {
-            sheet.detents = [.custom ( resolver:  { context in 0.3*context.maximumDetentValue } ) ]
+            sheet.detents = [.custom ( resolver:  { context in 0.5*context.maximumDetentValue } ) ]
             sheet.preferredCornerRadius = 24
             sheet.prefersGrabberVisible = true
         }
@@ -86,7 +86,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = taskListData?.tasks[safe: indexPath.item] else {
             return UITableViewCell()
         }
-        cell.setData(with: task.title, isCompleted: task.isCompleted)
+        cell.setData(with: task.title, isCompleted: task.isCompleted, dueDate: task.dueDate)
         cell.selectionStyle = .none
         return cell
     }
@@ -107,9 +107,18 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
             completionHandler(true)
         }
         
+        
         deleteAction.backgroundColor = .red
         
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        let editAction = UIContextualAction(style: .destructive, title: "Edit"){[weak self](_,_,completionHandler) in
+            guard let self = self, let taskListData=taskListData,let task = taskListData.tasks[safe: indexPath.item] else{ return}
+//            try! DataManager.shared.updateTaskToList(task, newTitle: "New Title", newDueDate: Date())
+            addTaskButtonTapped()
+        
+    }
+        editAction.backgroundColor = .systemOrange
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction,editAction])
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
     }
@@ -117,9 +126,10 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
 
 extension TaskVC: BottomSheetUIViewDelegate {
 
-    func addButtonTapped(withText text: String?) {
+    func addButtonTapped(withText text: String?, date: Date?) {
         guard let taskList = taskListData, let title = text else { return }
-        let taskItem = TaskItem(title: title)
+        let Date = date ?? Date()
+        let taskItem = TaskItem(title: title, dueDate: Date)
         try! DataManager.shared.addTaskToList(taskItem, taskList: taskList)
         tasksTableView.reloadData()
         reloadTitle()
