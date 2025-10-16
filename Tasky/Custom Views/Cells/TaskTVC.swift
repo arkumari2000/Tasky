@@ -21,6 +21,7 @@ class TaskTVC: UITableViewCell {
     
     let radioButton = TaskyRadioButton(frame: .zero)
     let taskTitleLabel = TaskyBodyLabel(frame: .zero)
+    let dueDateLabel = TaskyBodyLabel(frame: .zero)
     
     let hStack: UIStackView = {
        let stackView = UIStackView()
@@ -28,6 +29,15 @@ class TaskTVC: UITableViewCell {
         stackView.alignment = .center
         stackView.distribution = .fillProportionally
         stackView.spacing = 20
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    let vStack: UIStackView = {
+       let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .leading
+        stackView.distribution = .fillProportionally
+        stackView.spacing = 2
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -41,9 +51,15 @@ class TaskTVC: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setData(with tasktitle: String, isCompleted: Bool = false) {
+    func setData(with tasktitle: String, isCompleted: Bool = false, dueDate: Date) {
         
         taskTitleLabel.text = tasktitle
+        let dateFormatter = DateFormatter()
+        let myString = (String(describing: dueDate))
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let yourDate: Date? = dateFormatter.date(from: myString)
+        dateFormatter.dateFormat = "dd-MMM-yyyy"
+        dueDateLabel.text = dateFormatter.string(from: dueDate)
         if isCompleted {
             // Create attributed string with strikethrough attribute
             let attributedString = NSAttributedString(
@@ -56,11 +72,17 @@ class TaskTVC: UITableViewCell {
             taskTitleLabel.attributedText = attributedString
         }
         radioButton.isChecked = isCompleted
+        
+        //dueDate.map { print("Task due date: \($0)") }
+        
     }
     
     func configureCell() {
+        vStack.addArrangedSubview(taskTitleLabel)
+        vStack.addArrangedSubview(dueDateLabel)
         hStack.addArrangedSubview(radioButton)
-        hStack.addArrangedSubview(taskTitleLabel)
+        hStack.addArrangedSubview(vStack)
+        
         
         contentView.addSubview(hStack)
         NSLayoutConstraint.activate([
