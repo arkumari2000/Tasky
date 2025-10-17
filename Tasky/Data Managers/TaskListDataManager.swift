@@ -56,8 +56,16 @@ class DataManager {
         try context.save()
     }
     
-    func updateTaskToList(_ task: TaskItem, taskList: TaskList) throws {
-        if ((taskList.tasks.contains(where: {$0.id == task.id})) != nil) {
+    func updateTask(_ task: TaskItem, taskList: TaskList, with newData: TaskItem) throws {
+        if (taskList.tasks.contains(where: {$0.id == task.id})) {
+            task.title = newData.title
+            task.dueDate = newData.dueDate
+        }
+        try context.save()
+    }
+    
+    func completeTask(_ task: TaskItem, taskList: TaskList) throws {
+        if (taskList.tasks.contains(where: {$0.id == task.id})) {
             task.isCompleted.toggle()
         }
         try context.save()

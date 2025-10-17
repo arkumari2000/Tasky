@@ -9,9 +9,14 @@ import UIKit
 
 protocol BottomSheetUIViewDelegate: AnyObject {
     func addButtonTapped(withText text: String?, date: Date?)
+    func editButtonTapped(withText text: String?, date: Date?, task: TaskItem?)
 }
 
 class BottomSheetUIView: UIViewController {
+    
+    var isEditingEnabled: Bool = false
+    var task: TaskItem? = nil
+    
     let taskField = TaskTextField(placeholderText: "Enter Task Name")
     let cancelButton = TaskyButton(backgroundColor: .systemRed, title: "Cancel")
     let addButton = TaskyButton(backgroundColor: .systemOrange, title: "Add Task", titleColor: .white)
@@ -32,6 +37,11 @@ class BottomSheetUIView: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureData()
+    }
+    
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
             let selectedDate = sender.date
             let dateFormatter = DateFormatter()
@@ -40,19 +50,45 @@ class BottomSheetUIView: UIViewController {
             print(dateString)
     }
     
-    @objc func addButtonTapped(){
-        delegate?.addButtonTapped(withText: taskField.text, date: datePicker.date)
-        taskField.text = ""
+    @objc func addButtonTapped() {
+        if isEditingEnabled {
+            delegate?.editButtonTapped(withText: taskField.text,
+                                       date: datePicker.date,
+                                       task: task)
+        } else {
+            delegate?.addButtonTapped(withText: taskField.text, date: datePicker.date)
+        }
+        resetData()
         self.dismiss(animated: true, completion: nil)
     }
     
-    @objc func cancelButtonTapped(){
-        taskField.text = ""
+    @objc func cancelButtonTapped() {
+        resetData()
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    func resetData() {
+        taskField.text = ""
+        isEditingEnabled = false
+        task = nil
+    }
+    
+    func configureData() {
+        if isEditingEnabled {
+            addButton.setTitle("Edit Task", for: .normal)
+            heading.text = "Edit Task"
+            taskField.text = task?.title
+            let dueDate = task?.dueDate ?? .now
+            datePicker.setDate(dueDate, animated: true)
+        } else {
+            addButton.setTitle("Add Task", for: .normal)
+            heading.text = "Add Task"
+            taskField.text = ""
+            datePicker.setDate(.now, animated: true)
+        }
     }
     
     func configureHeading(){
-        heading.text = "Add Task"
         heading.textColor = UIColor.black
         heading.font = UIFont.boldSystemFont(ofSize: 25)
         heading.translatesAutoresizingMaskIntoConstraints = false
