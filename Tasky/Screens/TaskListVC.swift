@@ -38,9 +38,11 @@ class TaskListVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
+
         fetchTaskList()
         fetchFlaggedTaskList()
         taskListTableView.reloadData()
+        taggedCollectionView.reloadData()
         updateTableviewheightConstraint()
     }
     
@@ -191,9 +193,9 @@ extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let tasksList = flaggedListData[indexPath.item]
-        let count = tasksList.tasks.count
-        pushTaskVC(withTitle: "\(tasksList.title) (\(count))", tasksList: tasksList)
+        let tasksList = taskListData[indexPath.item]
+        let title = getTaskVCTitle(for: tasksList)
+        pushTaskVC(withTitle: title, tasksList: tasksList)
     }
 }
 
@@ -212,8 +214,8 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let tasksList = taskListData[indexPath.item]
-        let count = tasksList.tasks.count
-        pushTaskVC(withTitle: "\(taskListData[indexPath.item].title) (\(count))", tasksList: tasksList)
+        let title = getTaskVCTitle(for: tasksList)
+        pushTaskVC(withTitle: title, tasksList: tasksList)
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -230,6 +232,11 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
 }
 
 private extension TaskListVC {
+    
+    func getTaskVCTitle(for taskList: TaskList) -> String {
+        let count = taskList.tasks.count
+        return "\(taskList.title) (\(count))"
+    }
 
     func makeDeleteAction(for taskList: TaskList, at indexPath: IndexPath, tableView: UITableView) -> UIContextualAction {
         let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
