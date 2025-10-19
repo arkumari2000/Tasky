@@ -93,13 +93,33 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = taskListData?.tasks[safe: indexPath.item] else {
             return UITableViewCell()
         }
-        cell.setData(with: task.title, isCompleted: task.isCompleted, dueDate: task.dueDate)
+        cell.setData(with: task)
         cell.selectionStyle = .none
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //didTapButton(in: cell)
+        guard let taskList = taskListData,
+              let task = taskList.tasks[safe: indexPath.item] else {
+            return
+        }
+        try? DataManager.shared.completeTask(task, taskList: taskList)
+        
+        // Refresh table view UI first
+        self.refreshTaskListsUI { [weak self] in
+            guard let self = self else { return }
+            
+            // Schedule deletion after a 2-second delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                try? DataManager.shared.deleteTask(task, from: taskList)
+                
+                // Animate row deletion
+                self.tasksTableView.beginUpdates()
+                self.tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+                self.tasksTableView.endUpdates()
+            }
+        }
+        
     }
     
     func tableView(_ tableView: UITableView,
@@ -111,7 +131,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
                                             from: taskListData,
                                             at: indexPath,
                                             tableView: tableView)
-
+        
         let editAction = makeEditAction(for: task)
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction,editAction])
@@ -121,7 +141,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension TaskVC: BottomSheetUIViewDelegate {
-
+    
     func addButtonTapped(withText text: String?, date: Date?) {
         guard let taskList = taskListData, let title = text else { return }
         let Date = date ?? Date()
@@ -167,9 +187,10 @@ private extension TaskVC {
     
     func refreshTaskListsUI(completion: (() -> Void)? = nil) {
         reloadTitle()
-        UIView.animate(withDuration: 0.2) { [weak self] in
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
             self?.tasksTableView.reloadData()
+        }, completion: { _ in
             completion?()
-        }
+        })
     }
 }

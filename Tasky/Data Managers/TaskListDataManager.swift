@@ -65,9 +65,7 @@ class DataManager {
     }
     
     func completeTask(_ task: TaskItem, taskList: TaskList) throws {
-        if (taskList.tasks.contains(where: {$0.id == task.id})) {
-            task.isCompleted.toggle()
-        }
+        task.isCompleted = true
         try context.save()
     }
 

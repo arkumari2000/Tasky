@@ -7,15 +7,9 @@
 
 import UIKit
 
-protocol TaskTVCDelegate: AnyObject {
-    func didTapButton(in cell: TaskTVC)
-}
-
 class TaskTVC: UITableViewCell {
     
     static let reuseId = "TaskTVC"
-    
-    weak var delegate: TaskTVCDelegate?
     
     let cellSpacing: CGFloat = 5
     
@@ -24,7 +18,7 @@ class TaskTVC: UITableViewCell {
     let dueDateLabel = TaskyBodyLabel(frame: .zero)
     
     let hStack: UIStackView = {
-       let stackView = UIStackView()
+        let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.distribution = .fillProportionally
@@ -33,7 +27,7 @@ class TaskTVC: UITableViewCell {
         return stackView
     }()
     let vStack: UIStackView = {
-       let stackView = UIStackView()
+        let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.alignment = .leading
         stackView.distribution = .fillProportionally
@@ -51,30 +45,27 @@ class TaskTVC: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setData(with tasktitle: String, isCompleted: Bool = false, dueDate: Date) {
+    func setData(with task: TaskItem) {
         
-        taskTitleLabel.text = tasktitle
         let dateFormatter = DateFormatter()
-        let myString = (String(describing: dueDate))
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let yourDate: Date? = dateFormatter.date(from: myString)
         dateFormatter.dateFormat = "dd-MMM-yyyy"
-        dueDateLabel.text = dateFormatter.string(from: dueDate)
-        if isCompleted {
+        dueDateLabel.text = dateFormatter.string(from: task.dueDate)
+
+        if task.isCompleted {
             // Create attributed string with strikethrough attribute
             let attributedString = NSAttributedString(
-                string: tasktitle,
+                string: task.title,
                 attributes: [
                     .strikethroughStyle: NSUnderlineStyle.single.rawValue,
                     .foregroundColor: UIColor.secondaryLabel
                 ]
             )
             taskTitleLabel.attributedText = attributedString
+        } else {
+            taskTitleLabel.text = task.title
         }
-        radioButton.isChecked = isCompleted
-        
-        //dueDate.map { print("Task due date: \($0)") }
-        
+
+        radioButton.isChecked = task.isCompleted
     }
     
     func configureCell() {
@@ -92,5 +83,5 @@ class TaskTVC: UITableViewCell {
             hStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -cellSpacing)
         ])
     }
-
+    
 }
