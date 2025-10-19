@@ -45,6 +45,13 @@ class TaskVC: UIViewController {
     }
     
     @objc func addTaskButtonTapped() {
+        openTaskBottomSheet()
+    }
+    
+    func openTaskBottomSheet(with task: TaskItem? = nil, isEditing: Bool = false) {
+        addTaskBottomSheet.isEditingEnabled = isEditing
+        addTaskBottomSheet.task = task
+        
         let navVC = UINavigationController(rootViewController: addTaskBottomSheet)
         navVC.modalPresentationStyle = .pageSheet
         
@@ -86,37 +93,46 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = taskListData?.tasks[safe: indexPath.item] else {
             return UITableViewCell()
         }
-        cell.setData(with: task.title, isCompleted: task.isCompleted, dueDate: task.dueDate)
+        cell.setData(with: task)
         cell.selectionStyle = .none
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //didTapButton(in: cell)
-    }
-    
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
-            guard let self = self, let taskListData = taskListData,  let task = taskListData.tasks[safe: indexPath.item] else { return }
+        guard let taskList = taskListData,
+              let task = taskList.tasks[safe: indexPath.item] else {
+            return
+        }
+        try? DataManager.shared.completeTask(task, taskList: taskList)
+        
+        // Refresh table view UI first
+        self.refreshTaskListsUI { [weak self] in
+            guard let self = self else { return }
             
-            try! DataManager.shared.deleteTask(task, from: taskListData)
-            
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            self.reloadTitle()
-            
-            completionHandler(true)
+            // Schedule deletion after a 2-second delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                try? DataManager.shared.deleteTask(task, from: taskList)
+                
+                // Animate row deletion
+                self.tasksTableView.beginUpdates()
+                self.tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+                self.tasksTableView.endUpdates()
+            }
         }
         
-        
-        deleteAction.backgroundColor = .red
-        
-        let editAction = UIContextualAction(style: .destructive, title: "Edit"){[weak self](_,_,completionHandler) in
-            guard let self = self, let taskListData=taskListData,let task = taskListData.tasks[safe: indexPath.item] else{ return}
-//            try! DataManager.shared.updateTaskToList(task, newTitle: "New Title", newDueDate: Date())
-            addTaskButtonTapped()
-        
     }
-        editAction.backgroundColor = .systemOrange
+    
+    func tableView(_ tableView: UITableView,
+                   trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let taskListData = taskListData,
+              let task = taskListData.tasks[safe: indexPath.item] else { return nil }
+        
+        let deleteAction = makeDeleteAction(task,
+                                            from: taskListData,
+                                            at: indexPath,
+                                            tableView: tableView)
+        
+        let editAction = makeEditAction(for: task)
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction,editAction])
         configuration.performsFirstActionWithFullSwipe = true
@@ -125,7 +141,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension TaskVC: BottomSheetUIViewDelegate {
-
+    
     func addButtonTapped(withText text: String?, date: Date?) {
         guard let taskList = taskListData, let title = text else { return }
         let Date = date ?? Date()
@@ -133,5 +149,48 @@ extension TaskVC: BottomSheetUIViewDelegate {
         try! DataManager.shared.addTaskToList(taskItem, taskList: taskList)
         tasksTableView.reloadData()
         reloadTitle()
+    }
+    
+    func editButtonTapped(withText text: String?, date: Date?, task: TaskItem?) {
+        guard let taskList = taskListData, let title = text, let task = task else { return }
+        let Date = date ?? Date()
+        let taskItem = TaskItem(title: title, dueDate: Date)
+        try! DataManager.shared.updateTask(task, taskList: taskList, with: taskItem)
+        tasksTableView.reloadData()
+        reloadTitle()
+    }
+}
+
+private extension TaskVC {
+    func makeDeleteAction(_ task: TaskItem,
+                          from taskList: TaskList,
+                          at indexPath: IndexPath,
+                          tableView: UITableView) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            try? DataManager.shared.deleteTask(task, from: taskList)
+            self.refreshTaskListsUI()
+            completionHandler(true)
+        }
+        action.backgroundColor = .red
+        return action
+    }
+    
+    func makeEditAction(for task: TaskItem) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Edit") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            openTaskBottomSheet(with: task, isEditing: true)
+        }
+        action.backgroundColor = .systemOrange
+        return action
+    }
+    
+    func refreshTaskListsUI(completion: (() -> Void)? = nil) {
+        reloadTitle()
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.tasksTableView.reloadData()
+        }, completion: { _ in
+            completion?()
+        })
     }
 }

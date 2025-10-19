@@ -9,15 +9,21 @@ import UIKit
 
 protocol BottomSheetUIViewDelegate: AnyObject {
     func addButtonTapped(withText text: String?, date: Date?)
+    func editButtonTapped(withText text: String?, date: Date?, task: TaskItem?)
 }
 
 class BottomSheetUIView: UIViewController {
+    
+    var isEditingEnabled: Bool = false
+    var task: TaskItem? = nil
+    
     let taskField = TaskTextField(placeholderText: "Enter Task Name")
     let cancelButton = TaskyButton(backgroundColor: .systemRed, title: "Cancel")
     let addButton = TaskyButton(backgroundColor: .systemOrange, title: "Add Task", titleColor: .white)
     let datePicker = UIDatePicker()
-    let heading = UILabel()
-   
+    let heading = TaskyTitleLabel(textAlignment: .center, fontSize: 25)
+    
+    let viewSidePadding : CGFloat = 20
     
     var delegate: BottomSheetUIViewDelegate?
     
@@ -32,30 +38,58 @@ class BottomSheetUIView: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureData()
+    }
+    
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-            let selectedDate = sender.date
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd/MM/yyyy"
-            let dateString = dateFormatter.string(from: selectedDate)
-            print(dateString)
+        let selectedDate = sender.date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        let dateString = dateFormatter.string(from: selectedDate)
+        print(dateString)
     }
     
-    @objc func addButtonTapped(){
-        delegate?.addButtonTapped(withText: taskField.text, date: datePicker.date)
-        taskField.text = ""
+    @objc func addButtonTapped() {
+        if isEditingEnabled {
+            delegate?.editButtonTapped(withText: taskField.text,
+                                       date: datePicker.date,
+                                       task: task)
+        } else {
+            delegate?.addButtonTapped(withText: taskField.text, date: datePicker.date)
+        }
+        resetData()
         self.dismiss(animated: true, completion: nil)
     }
     
-    @objc func cancelButtonTapped(){
-        taskField.text = ""
+    @objc func cancelButtonTapped() {
+        resetData()
         self.dismiss(animated: true, completion: nil)
     }
     
-    func configureHeading(){
-        heading.text = "Add Task"
-        heading.textColor = UIColor.black
-        heading.font = UIFont.boldSystemFont(ofSize: 25)
-        heading.translatesAutoresizingMaskIntoConstraints = false
+    func resetData() {
+        taskField.text = ""
+        isEditingEnabled = false
+        task = nil
+    }
+    
+    func configureData() {
+        if isEditingEnabled {
+            addButton.setTitle("Edit Task", for: .normal)
+            heading.text = "Edit Task"
+            taskField.text = task?.title
+            let dueDate = task?.dueDate ?? .now
+            datePicker.setDate(dueDate, animated: true)
+        } else {
+            addButton.setTitle("Add Task", for: .normal)
+            heading.text = "Add Task"
+            taskField.text = ""
+            datePicker.setDate(.now, animated: true)
+        }
+    }
+    
+    func configureHeading() {
         view.addSubview(heading)
         NSLayoutConstraint.activate([
             heading.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
@@ -66,32 +100,31 @@ class BottomSheetUIView: UIViewController {
     
     func configureTaskField(){
         view.addSubview(taskField)
-        let sidePadding:CGFloat = 20
         
         NSLayoutConstraint.activate([
-            taskField.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
-            taskField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidePadding),
-            taskField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sidePadding),
+            taskField.topAnchor.constraint(equalTo: view.topAnchor, constant: 70),
+            taskField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: viewSidePadding),
+            taskField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -viewSidePadding),
             taskField.heightAnchor.constraint(equalToConstant: 55)
         ])
     }
     
-    func configureDatePicker(){
+    func configureDatePicker() {
         view.addSubview(datePicker)
         datePicker.translatesAutoresizingMaskIntoConstraints = false
-        datePicker.datePickerMode = .date // or .time, .dateAndTime
+        datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         
         NSLayoutConstraint.activate([
-            datePicker.topAnchor.constraint(equalTo: taskField.topAnchor, constant: 50),
-            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-           datePicker.heightAnchor.constraint(equalToConstant: 155)
+            datePicker.topAnchor.constraint(equalTo: taskField.topAnchor, constant: 60),
+            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: viewSidePadding),
+            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -viewSidePadding),
+            datePicker.heightAnchor.constraint(equalToConstant: 155)
         ])
     }
     
-    func configureAddButton(){
+    func configureAddButton() {
         view.addSubview(addButton)
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         
@@ -104,7 +137,7 @@ class BottomSheetUIView: UIViewController {
         ])
     }
     
-    func configureCancelButton(){
+    func configureCancelButton() {
         view.addSubview(cancelButton)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         
