@@ -50,22 +50,27 @@ class TaskTVC: UITableViewCell {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd-MMM-yyyy"
         dueDateLabel.text = dateFormatter.string(from: task.dueDate)
-
+        
+        taskTitleLabel.text = task.title
+        radioButton.isChecked = false
+        
         if task.isCompleted {
-            // Create attributed string with strikethrough attribute
-            let attributedString = NSAttributedString(
-                string: task.title,
-                attributes: [
-                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                    .foregroundColor: UIColor.secondaryLabel
-                ]
-            )
-            taskTitleLabel.attributedText = attributedString
-        } else {
-            taskTitleLabel.text = task.title
+            setCompletedTask(with: task)
         }
-
-        radioButton.isChecked = task.isCompleted
+    }
+    
+    func setCompletedTask(with task: TaskItem) {
+        // Create attributed string with strikethrough attribute
+        let attributedString = NSAttributedString(
+            string: task.title,
+            attributes: [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: UIColor.secondaryLabel
+            ]
+        )
+        taskTitleLabel.attributedText = attributedString
+        
+        radioButton.isChecked = true
     }
     
     func configureCell() {
@@ -82,6 +87,11 @@ class TaskTVC: UITableViewCell {
             hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             hStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -cellSpacing)
         ])
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        taskTitleLabel.attributedText = nil
     }
     
 }
