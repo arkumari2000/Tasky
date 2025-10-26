@@ -90,7 +90,8 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC, let task = taskListData?.tasks[safe: indexPath.item] else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskTVC.reuseId, for:  indexPath) as? TaskTVC,
+              let task = taskListData?.sortedTasks[safe: indexPath.item] else {
             return UITableViewCell()
         }
         cell.setData(with: task)
@@ -100,7 +101,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let taskList = taskListData,
-              let task = taskList.tasks[safe: indexPath.item] else {
+              let task = taskList.sortedTasks[safe: indexPath.item] else {
             return
         }
         try? DataManager.shared.completeTask(task, taskList: taskList)
@@ -125,7 +126,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard let taskListData = taskListData,
-              let task = taskListData.tasks[safe: indexPath.item] else { return nil }
+              let task = taskListData.sortedTasks[safe: indexPath.item] else { return nil }
         
         let deleteAction = makeDeleteAction(task,
                                             from: taskListData,
@@ -162,6 +163,7 @@ extension TaskVC: BottomSheetUIViewDelegate {
 }
 
 private extension TaskVC {
+
     func makeDeleteAction(_ task: TaskItem,
                           from taskList: TaskList,
                           at indexPath: IndexPath,

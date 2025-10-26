@@ -52,7 +52,6 @@ class DataManager {
 
     func addTaskToList(_ task: TaskItem, taskList: TaskList) throws {
         taskList.tasks.append(task)
-        context.insert(task)
         try context.save()
     }
     

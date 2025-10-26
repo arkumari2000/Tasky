@@ -20,4 +20,8 @@ class TaskList {
         self.icon = icon
         self.flagged = flagged
     }
+    
+    var sortedTasks: [TaskItem] {
+        tasks.sorted { $0.createdAt < $1.createdAt }
+    }
 }

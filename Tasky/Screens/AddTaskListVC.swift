@@ -56,6 +56,8 @@ class AddTaskListVC: ScrollViewController {
 
     func configureTextField() {
         contentView.addSubview(textField)
+        textField.becomeFirstResponder()
+        textField.delegate = self
         
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
@@ -127,4 +129,12 @@ extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
         cell.setSymbol(image: symbol, withBackgorundColor: .systemCyan)
     }
     
+}
+
+extension AddTaskListVC: UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return taskName != nil && selectedIcon != nil
+    }
 }

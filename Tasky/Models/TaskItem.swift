@@ -14,12 +14,16 @@ class TaskItem {
     var title: String
     var isCompleted: Bool
     var dueDate: Date
+    var createdAt: Date = Date.now
     
-    init(title: String = "", isCompleted: Bool = false, dueDate: Date = .distantFuture) {
+    init(title: String = "",
+         isCompleted: Bool = false,
+         dueDate: Date = .distantFuture) {
         self.id = UUID()
         self.title = title
         self.isCompleted = isCompleted
         self.dueDate = dueDate
+        self.createdAt = .now
     }
 }
 
