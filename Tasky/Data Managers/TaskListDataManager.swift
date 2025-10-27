@@ -75,11 +75,6 @@ class DataManager {
         // Delete task from context
         context.delete(task)
 
-        // If no tasks left, delete the TaskList as per requirement
-        if taskList.tasks.isEmpty {
-            context.delete(taskList)
-        }
-
         try context.save()
     }
 }

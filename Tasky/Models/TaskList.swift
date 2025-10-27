@@ -22,6 +22,6 @@ class TaskList {
     }
     
     var sortedTasks: [TaskItem] {
-        tasks.sorted { $0.createdAt < $1.createdAt }
+        tasks.sorted { $0.dueDate < $1.dueDate }
     }
 }

@@ -133,7 +133,7 @@ class BottomSheetUIView: UIViewController {
             addButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 15),
             addButton.trailingAnchor.constraint(equalTo: taskField.trailingAnchor),
             addButton.widthAnchor.constraint(equalToConstant: 175),
-            addButton.heightAnchor.constraint(equalToConstant: 55)
+            addButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -144,8 +144,9 @@ class BottomSheetUIView: UIViewController {
         NSLayoutConstraint.activate([
             cancelButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 15),
             cancelButton.leadingAnchor.constraint(equalTo: taskField.leadingAnchor),
+            cancelButton.trailingAnchor.constraint(equalTo: addButton.leadingAnchor, constant: -20),
             cancelButton.widthAnchor.constraint(equalToConstant: 175),
-            cancelButton.heightAnchor.constraint(equalToConstant: 55)
+            cancelButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
 }

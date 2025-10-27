@@ -113,6 +113,7 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
             // Schedule deletion after a 2-second delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 try? DataManager.shared.deleteTask(task, from: taskList)
+                self.reloadTitle()
                 
                 // Animate row deletion
                 self.tasksTableView.beginUpdates()
@@ -120,7 +121,6 @@ extension TaskVC: UITableViewDataSource, UITableViewDelegate {
                 self.tasksTableView.endUpdates()
             }
         }
-        
     }
     
     func tableView(_ tableView: UITableView,
