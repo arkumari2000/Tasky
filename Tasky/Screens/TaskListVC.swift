@@ -254,6 +254,20 @@ private extension TaskListVC {
     func makeFlagAction(for taskList: TaskList) -> UIContextualAction {
         let isFlagged = taskList.flagged ?? false
         let actionTitle = isFlagged ? "Unflag" : "Flag"
+
+        if !isFlagged && flaggedListData.count >= 4 {
+            let alert = UIAlertController(title: "Cannot Flag More Items",
+                                          message: "You can only flag upto 4 Lists, please unflag first to flag this list.",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            let action = UIContextualAction(style: .normal, title: actionTitle) { _,_,_ in
+                // Present the alert
+                self.present(alert, animated: true, completion: nil)
+            }
+            action.backgroundColor = .gray
+            return action
+        }
+        
         let action = UIContextualAction(style: .normal, title: actionTitle) { [weak self] (_, _, completionHandler) in
             guard let self = self else { return }
             try? DataManager.shared.updateTaskList(taskList, flagged: !isFlagged)
