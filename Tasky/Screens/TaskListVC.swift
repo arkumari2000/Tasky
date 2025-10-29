@@ -7,6 +7,10 @@
 
 import UIKit
 
+enum FlaggedSection {
+    case main
+}
+
 class TaskListVC: UIViewController {
     
     //Views
@@ -21,6 +25,9 @@ class TaskListVC: UIViewController {
     
     let sidePadding : CGFloat = 10
     
+    private var flaggedDataSource: UICollectionViewDiffableDataSource<FlaggedSection, UUID>!
+    private var flaggedListIDs: [UUID] = []
+
     private var collectionViewHeightConstraint: NSLayoutConstraint!
     private var tableViewHeightConstraint: NSLayoutConstraint!
     
@@ -42,7 +49,7 @@ class TaskListVC: UIViewController {
         fetchTaskList()
         fetchFlaggedTaskList()
         taskListTableView.reloadData()
-        taggedCollectionView.reloadData()
+        applyFlaggedSnapshot()
         updateTableviewheightConstraint()
     }
     
@@ -84,6 +91,21 @@ class TaskListVC: UIViewController {
         tableViewHeightConstraint.constant = tableHeight
     }
     
+    private func configureFlaggedDataSource() {
+        flaggedDataSource = UICollectionViewDiffableDataSource<FlaggedSection, UUID>(collectionView: taggedCollectionView) { [weak self] (collectionView, indexPath, id) -> UICollectionViewCell? in
+            guard let self = self,
+                  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell,
+                  let taskList = self.flaggedListData.first(where: { $0.id == id })
+            else {
+              return UICollectionViewCell()
+            }
+            
+            cell.configureData(with: taskList)
+            return cell
+        }
+        applyFlaggedSnapshot(animatingDifferences: false)
+    }
+    
     func configureRightButton() {
         let addTaskButton = TaskyAddButton(title: "Add List Item", image: UIImage(systemName: "plus.circle.fill"))
         addTaskButton.addTarget(self, action: #selector(pushAddTaskListVC), for: .touchUpInside)
@@ -109,7 +131,7 @@ class TaskListVC: UIViewController {
         let flowLayout = UIHelper.createColumnFlowlayour(withColumns: 2, in: view, padding: 10, spacing: 12, maxSize: maxSize)
         taggedCollectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         
-        taggedCollectionView.dataSource = self
+        configureFlaggedDataSource()
         taggedCollectionView.delegate = self
         
         taggedCollectionView.register(TaggedTaskListCell.self, forCellWithReuseIdentifier: TaggedTaskListCell.reuseId)
@@ -179,21 +201,10 @@ class TaskListVC: UIViewController {
     }
 }
 
-extension TaskListVC: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return flaggedListData.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TaggedTaskListCell.reuseId, for: indexPath) as? TaggedTaskListCell, let data = flaggedListData[safe: indexPath.item] else {
-            return UICollectionViewCell()
-        }
-        cell.configureData(with: data)
-        return cell
-    }
+extension TaskListVC: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let tasksList = taskListData[indexPath.item]
+        let tasksList = flaggedListData[indexPath.item]
         let title = getTaskVCTitle(for: tasksList)
         pushTaskVC(withTitle: title, tasksList: tasksList)
     }
@@ -232,6 +243,16 @@ extension TaskListVC: UITableViewDelegate, UITableViewDataSource {
 }
 
 private extension TaskListVC {
+    
+    private func applyFlaggedSnapshot(animatingDifferences: Bool = true) {
+        flaggedListIDs = flaggedListData.map { $0.id }  // map models to IDs
+        
+        var snapshot = NSDiffableDataSourceSnapshot<FlaggedSection, UUID>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(flaggedListIDs, toSection: .main)
+        flaggedDataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+    }
+
     
     func getTaskVCTitle(for taskList: TaskList) -> String {
         let count = taskList.tasks.count
@@ -282,7 +303,7 @@ private extension TaskListVC {
         fetchTaskList()
         fetchFlaggedTaskList()
         UIView.animate(withDuration: 0.2) {
-            self.taggedCollectionView.reloadData()
+            self.applyFlaggedSnapshot()
             self.updateCollectionViewHeightConstraint()
             completion?()
         }

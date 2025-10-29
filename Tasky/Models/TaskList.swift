@@ -9,7 +9,9 @@ import Foundation
 import SwiftData
 
 @Model
-class TaskList {
+class TaskList: Hashable {
+    @Attribute(.unique) var id: UUID = UUID()
+    
     var title: String
     var icon: String
     var flagged: Bool?
@@ -23,5 +25,13 @@ class TaskList {
     
     var sortedTasks: [TaskItem] {
         tasks.sorted { $0.dueDate < $1.dueDate }
+    }
+    
+    static func ==(lhs: TaskList, rhs: TaskList) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
