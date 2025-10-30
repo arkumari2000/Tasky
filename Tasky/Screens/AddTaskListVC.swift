@@ -59,6 +59,9 @@ class AddTaskListVC: ScrollViewController {
         textField.becomeFirstResponder()
         textField.delegate = self
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+        
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
             textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: sidePadding),
@@ -103,6 +106,14 @@ class AddTaskListVC: ScrollViewController {
     }
 }
 
+// HELPER METHODS
+private extension AddTaskListVC {
+    
+    @objc func dismissKeyboard() {
+        textField.resignFirstResponder()
+    }
+}
+
 extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -134,7 +145,7 @@ extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
 extension AddTaskListVC: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        dismissKeyboard()
         return taskName != nil && selectedIcon != nil
     }
 }
