@@ -8,6 +8,8 @@
 import UIKit
 
 class TaskyButton: UIButton {
+    
+    var buttonBackgroundColor: UIColor?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -17,13 +19,19 @@ class TaskyButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override var isEnabled: Bool {
+        didSet {
+            backgroundColor = isEnabled ? buttonBackgroundColor : .gray
+        }
+    }
+    
     init(backgroundColor: UIColor,
          title: String,
          font: UIFont? = nil,
          titleColor: UIColor? = nil,
          cornerRadius: CGFloat? = nil) {
         super.init(frame: .zero)
-        self.backgroundColor = backgroundColor
+        self.buttonBackgroundColor = backgroundColor
         self.setTitle(title, for: .normal)
         configure(font: font,
                   titleColor: titleColor,
@@ -37,5 +45,6 @@ class TaskyButton: UIButton {
         layer.cornerRadius = cornerRadius ?? 10
         setTitleColor(.white, for: .normal)
         titleLabel?.font = font ?? UIFont.preferredFont(forTextStyle: .headline)
+        backgroundColor = buttonBackgroundColor
     }
 }

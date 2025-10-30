@@ -22,6 +22,11 @@ class AddTaskListVC: ScrollViewController {
     
     var taskName: String? { textField.text }
     var selectedIcon: String?
+    var previouslySelectedIndexPath: IndexPath?
+    
+    var isSubmitButtonEnabled: Bool {
+        return textField.text?.isEmpty == false && selectedIcon?.isEmpty == false
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,13 +46,6 @@ class AddTaskListVC: ScrollViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
     }
     
-    @objc func addTaskList() {
-        guard let name = taskName, let icon = selectedIcon else { return }
-        let taskList = TaskList(title: name, icon: icon)
-        DataManager.shared.addTaskList(taskList)
-        self.popViewController(withAnimation: true)
-    }
-    
     func configureViews() {
         configureTextField()
         configureCollectionView()
@@ -58,6 +56,10 @@ class AddTaskListVC: ScrollViewController {
         contentView.addSubview(textField)
         textField.becomeFirstResponder()
         textField.delegate = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
@@ -92,6 +94,7 @@ class AddTaskListVC: ScrollViewController {
         view.addSubview(submitButton)
         
         submitButton.addTarget(self, action: #selector(addTaskList), for: .touchUpInside)
+        updateSubmitButton()
         
         NSLayoutConstraint.activate([
             scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: 10),
@@ -100,6 +103,25 @@ class AddTaskListVC: ScrollViewController {
             submitButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
             submitButton.heightAnchor.constraint(equalToConstant: 45)
         ])
+    }
+}
+
+// HELPER METHODS
+private extension AddTaskListVC {
+    
+    func updateSubmitButton() {
+        submitButton.isEnabled = isSubmitButtonEnabled
+    }
+    
+    @objc func addTaskList() {
+        guard let name = taskName, let icon = selectedIcon else { return }
+        let taskList = TaskList(title: name, icon: icon)
+        DataManager.shared.addTaskList(taskList)
+        self.popViewController(withAnimation: true)
+    }
+    
+    @objc func dismissKeyboard() {
+        textField.resignFirstResponder()
     }
 }
 
@@ -123,18 +145,40 @@ extension AddTaskListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // Deselect previous cell if any
+        if let previousIndexPath = previouslySelectedIndexPath, previousIndexPath != indexPath {
+            if let previousCell = collectionView.cellForItem(at: previousIndexPath) as? SymbolCell {
+                // Reset appearance of previously selected cell
+                if let previousSymbol = symbolsList[previousIndexPath.item].image {
+                    previousCell.setSymbol(image: previousSymbol, withBackgorundColor: .clear) // Or default color
+                }
+                collectionView.deselectItem(at: previousIndexPath, animated: true)
+            }
+        }
+
+        // Update current selected cell appearance
+        if let cell = collectionView.cellForItem(at: indexPath) as? SymbolCell,
+           let symbol = symbolsList[indexPath.item].image {
+            cell.setSymbol(image: symbol, withBackgorundColor: .systemCyan)
+        }
+
+        // Update selected icon and selected index path
         selectedIcon = symbolsList[safe: indexPath.item]?.systemName
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SymbolCell.reuseId, for: indexPath) as! SymbolCell
-        guard let symbol = symbolsList[indexPath.item].image else { return }
-        cell.setSymbol(image: symbol, withBackgorundColor: .systemCyan)
+        previouslySelectedIndexPath = indexPath
+        updateSubmitButton()
     }
     
 }
 
 extension AddTaskListVC: UITextFieldDelegate {
     
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        updateSubmitButton()
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        dismissKeyboard()
+        updateSubmitButton()
         return taskName != nil && selectedIcon != nil
     }
 }
